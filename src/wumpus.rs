@@ -56,38 +56,19 @@ pub fn all_distinct(_values: &[u32]) -> bool {
 }
 
 // TODO: replace this `match` with a lookup in CAVE. It should return [u32; 3].
-pub fn exits(room: u32) -> (u32, u32, u32) {
-    match room {
-        1 => (2, 4, 5),
-        2 => (1, 3, 6),
-        3 => (2, 4, 7),
-        4 => (1, 3, 8),
-        5 => (1, 6, 8),
-        6 => (2, 5, 7),
-        7 => (3, 6, 8),
-        8 => (4, 5, 7),
-        _ => panic!("room {room} is not in the cave"),
-    }
+pub fn exits(room: u32) -> [u32; 3] {
+    CAVE[(room - 1) as usize]
 }
 
 pub fn is_exit(room: u32, target: u32) -> bool {
-    let (a, b, c) = exits(room);
-    target == a || target == b || target == c
+    contains(&exits(room), target)
 }
 
 pub fn print_warnings(room: u32, pit: u32, bats: u32, wumpus: u32) {
-    let (a, b, c) = exits(room);
-    if a == pit || b == pit || c == pit {
-        println!("You feel a draft.");
-    }
-    if a == bats || b == bats || c == bats {
-        println!("You hear rustling.");
-    }
-    if a == wumpus || b == wumpus || c == wumpus {
-        println!("You smell a Wumpus.");
-    }
+    let [a, b, c] = exits(play);
+    for adj in exits(play) {
 }
-
+}
 /// Returns (player, pit, bats, wumpus), all in different rooms.
 pub fn place_hazards() -> (u32, u32, u32, u32) {
     let mut rng = rand::rng();
@@ -114,7 +95,7 @@ pub fn bat_destination() -> u32 {
 pub fn wake_wumpus(wumpus: u32) -> u32 {
     let mut rng = rand::rng();
     if rng.random_range(0..4) < 3 {
-        let (a, b, c) = exits(wumpus);
+        let [a, b, c] = exits(wumpus);
         match rng.random_range(0..3) {
             0 => a,
             1 => b,
@@ -141,7 +122,7 @@ pub fn play() {
     println!("You enter the cave with {arrows} arrows.");
     loop {
         println!();
-        let (a, b, c) = exits(player);
+        let [a, b, c] = exits(player);
         println!("You are in room {player}. Exits: {a}, {b}, {c}.");
         print_warnings(player, pit, bats, wumpus);
         print!("Move or shoot (m/s)? ");
