@@ -102,15 +102,20 @@ pub fn print_warnings(room: u32, pit: &[u32], bats: &[u32], wumpus: u32) {
 }
 
 /// Returns (player, pit, bats, wumpus), all in different rooms.
-pub fn place_hazards() -> (u32, u32, u32, u32) {
+pub fn place_hazards() -> (u32, [u32; 2], [u32; 2], u32) {
     let mut rng = rand::rng();
     loop {
-        let player = rng.random_range(1..=8);
-        let pit = rng.random_range(1..=8);
-        let bats = rng.random_range(1..=8);
-        let wumpus = rng.random_range(1..=8);
-        if player != pit && player != bats && player != wumpus && pit != bats && pit != wumpus && bats != wumpus {
-            return (player, pit, bats, wumpus);
+        let player = rng.gen_range(1..=ROOM_COUNT);
+        let pit1 = rng.gen_range(1..=ROOM_COUNT);
+        let pit2 = rng.gen_range(1..=ROOM_COUNT);
+        let bat1 = rng.gen_range(1..=ROOM_COUNT);
+        let bat2 = rng.gen_range(1..=ROOM_COUNT);
+        let wumpus = rng.gen_range(1..=ROOM_COUNT);
+
+        let rooms = [player, pit1, pit2, bat1, bat2, wumpus];
+
+        if all_distinct(&rooms) {
+            return (player, [pit1, pit2], [bat1, bat2], wumpus);
         }
     }
 }
