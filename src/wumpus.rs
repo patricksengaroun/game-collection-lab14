@@ -38,8 +38,16 @@ const CAVE: [[u32; 3]; 20] = [
 ];
 
 // TODO: recursive. True if `target` appears in `values`.
-pub fn contains(_values: &[u32], _target: u32) -> bool {
-    todo!("Implement contains")
+pub fn contains(values: &[u32], target: u32) -> bool {
+    if values.is_empty() {
+        return false;
+    }
+
+    if values[0] == target {
+        return true;
+    }
+
+    contains(&values[1..], target)
 }
 
 // TODO: recursive. True if no value appears twice in `values`. Use `contains`.
