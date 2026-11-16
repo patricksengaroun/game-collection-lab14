@@ -68,7 +68,7 @@ pub fn print_warnings(room: u32, pit: u32, bats: u32, wumpus: u32) {
     let [a, b, c] = exits(play);
     for adj in exits(play) {
 }
-}
+
 /// Returns (player, pit, bats, wumpus), all in different rooms.
 pub fn place_hazards() -> (u32, u32, u32, u32) {
     let mut rng = rand::rng();
