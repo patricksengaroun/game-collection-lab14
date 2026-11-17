@@ -3,7 +3,6 @@
 // TODO (Lab 14): refactor this into a 20-room cave stored as a table, with two pits and
 // two bat rooms.
 // TODO: remove the next line once every item below is used.
-#![allow(dead_code)]
 
 use crate::input::read_int;
 use rand::RngExt;
@@ -143,7 +142,7 @@ pub fn wake_wumpus(wumpus_room: u32, exits: [u32; 3]) -> u32 {
 
 fn read_exit(room: u32, prompt: &str) -> u32 {
     loop {
-        let target = read_int(prompt, 1, 8);
+        let target = read_int(prompt, 1, ROOM_COUNT);
         if is_exit(room, target) {
             return target;
         }
@@ -152,7 +151,7 @@ fn read_exit(room: u32, prompt: &str) -> u32 {
 }
 
 pub fn play() {
-    let (mut player_room, pits, bats, wumpus_room) = place_hazards();
+    let (mut player_room, pits, bats, mut wumpus_room) = place_hazards();
     let mut arrows_left = ARROWS;
     println!("You enter the cave with {ARROWS} arrows.");
     
@@ -177,14 +176,16 @@ pub fn play() {
         
         println!("\nYou are in room {player_room}.");
 
+        print_warnings(player_room, &pits, &bats, wumpus_room);
+
         let choice = read_int("Do you want to Move (1) or Shoot (2)? ", 1, 2); 
 
         if choice == 1 {
-            player_room = read_int("Where to? ", 1, ROOM_COUNT);
+            player_room = read_exit(player_room, "Where to? ");
         } else if choice == 2 {
-            let target_room = read_int("Where to? ", 1, ROOM_COUNT);
+            let target_room = read_exit(player_room, "Shoot into which room? ");
             
-            if target_room == wumpus_room {
+            if shoot(target_room, wumpus_room) {
                 println!("You shot the Wumpus! You win!");
                 return;
             } else {
@@ -194,6 +195,9 @@ pub fn play() {
                     println!("You ran out of arrows! Game over.");
                     return;
                 }
+                             
+                wumpus_room = wake_wumpus(wumpus_room, exits(wumpus_room));
+
             }
         }
     }
