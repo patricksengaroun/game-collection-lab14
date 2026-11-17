@@ -153,27 +153,49 @@ fn read_exit(room: u32, prompt: &str) -> u32 {
 
 pub fn play() {
     let (mut player_room, pits, bats, wumpus_room) = place_hazards();
-    let arrows_left = ARROWS;
-    println!("You enter the cave with {arrows_left} arrows.");
+    let mut arrows_left = ARROWS;
+    println!("You enter the cave with {ARROWS} arrows.");
     
     loop {
-        if bats.contains(&player_room) {
-            println!("A giant bat grabs you and flies you away!");
-            player_room = bat_destination();
-            continue; 
+
+        loop {
+            if bats.contains(&player_room) {
+                println!("A giant bat grabs you and flies you away!");
+                player_room = bat_destination();
+                continue; 
+            }
+            if pits.contains(&player_room) {
+                println!("Yikes! You fell into a bottomless pit! Game over.");
+                return;
+            }
+            if player_room == wumpus_room {
+                println!("You bumped into the Wumpus! Game over.");
+                return;
+            }
+            break;
         }
         
-        if pits.contains(&player_room) {
-            println!("Yikes! You fell into a bottomless pit! Game over.");
-            return;
-        }
+        println!("\nYou are in room {player_room}.");
 
-        if player_room == wumpus_room {
-            println!("You bumped into the Wumpus! Game over.");
-            return;
-        }
+        let choice = read_int("Do you want to Move (1) or Shoot (2)? ", 1, 2); 
 
-        break;
+        if choice == 1 {
+            player_room = read_int("Where to? ", 1, ROOM_COUNT);
+        } else if choice == 2 {
+            let target_room = read_int("Where to? ", 1, ROOM_COUNT);
+            
+            if target_room == wumpus_room {
+                println!("You shot the Wumpus! You win!");
+                return;
+            } else {
+                println!("Your arrow missed!");
+                arrows_left -= 1;
+                if arrows_left == 0 {
+                    println!("You ran out of arrows! Game over.");
+                    return;
+                }
+            }
+        }
     }
 }
 
@@ -228,4 +250,40 @@ mod tests {
     //   one for `contains` (include the empty list),
     //   one for `all_distinct` (a list with a repeat and a list without),
     //   one for `exits` on a known room.
+    
+    #[test]
+    fn test_contains_empty_end_and_missing() {
+        let empty_list: [u32; 0] = [];
+        assert!(!empty_list.contains(&5), "Empty list should not contain anything");
 
+        let list_with_end = [1, 2, 3, 4, 5];
+        assert!(list_with_end.contains(&5), "Should find target at the end of the list");
+
+        let list_missing = [1, 2, 3, 4];
+        assert!(!list_missing.contains(&9), "Should return false if target is missing");
+    }
+
+    #[test]
+    fn test_all_distinct_cases() {
+        assert!(all_distinct(&[]), "Empty list must be distinct");
+
+        assert!(all_distinct(&[42]), "Single item list must be distinct");
+
+        assert!(all_distinct(&[1, 2, 3, 4, 5]), "List without repeats should return true");
+
+        assert!(!all_distinct(&[1, 2, 3, 4, 5, 1]), "Repeat at the end should return false");
+    }
+
+    #[test]
+    fn test_exits_for_known_room() {
+        let known_room = 1;
+
+        let expected_exits = [2, 5, 8];
+
+        let actual_exits = exits(known_room);
+
+        assert_eq!(
+            actual_exits, expected_exits,
+            "Exits for room {} do not match the expected map layout", known_room
+        );
+    }
