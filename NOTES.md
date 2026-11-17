@@ -1,7 +1,3 @@
-# Notes
+# Lab Reflection
 
-## Reflection (five sentences)
-
-TODO: what was easier or harder with the table than with the original `match`, and what a bug in the
-table would look like in play. Add one sentence on how the recursive `contains` differs from
-a loop that does the same job.
+Using a table array made it way easier to expand the game to 20 rooms because I just had to type out the rows of numbers instead of writing dozens of messy match arms. However, it was much harder to double-check my work because it is easy to make a typo in the numbers or accidentally create one-way paths between rooms. If there was a bug in the table, it would show up during the game as a room you can never enter, a tunnel that doesn't lead back where you came from, or an out-of-bounds index crash. A normal loop checks the list by changing a single counter variable one step at a time until it reaches the end of the array. The recursive contains function does this differently by splitting the list into the first item and the rest of the list, creating a new function call for each step until it hits a base case.
